@@ -1,85 +1,50 @@
 import gym
 import numpy as np
 import random
+import math
 
 # Hyperparameters
-# TODO: improve
+# TODO: improve - maybe gridsearch-like method?
 LEARNING_RATE = 0.1
-DISCOUNT_FACTOR = 0.5
-EXPLORATION = 0.5
-EXPLORATION_MIN = 0.001
-
-#
-DISCRETIZED_STATES = 162
+DISCOUNT_FACTOR = 1.0
+EXPLORATION = 0.3
 
 # Angle conversions
-ONE_DEGREE = 0.0174532
+TWO_DEGREES = 0.0349065
 SIX_DEGREES = 0.1047192
 TWELVE_DEGREES = 0.2094384
-FIFTY_DEGREES = 0.87266
 
 # TODO: move this class to a different file
 class QLAgent:
     def __init__(self, state_space, action_space):
-        self.state_space = state_space
         self.action_space = action_space
+        self.state_space = state_space
+        self.upper_bounds = [self.state_space.high[0], 0.5, self.state_space.high[2], math.radians(50)]
+        self.lower_bounds = [self.state_space.low[0], -0.5, self.state_space.low[2], -math.radians(50)]
 
-        self.epsilon = EXPLORATION
+        self.buckets = (1, 1, 6, 12)  # TODO: try out other values
+        self.n_states = 0
+        for i in range(len(self.buckets)):
+            self.n_states += self.buckets[i] - 1 if i == 0 else (self.buckets[i] - 1) * self.buckets[i-1]
 
-        self.q_table = np.zeros([DISCRETIZED_STATES, action_space])
+        self.q_table = np.zeros([self.n_states, self.action_space])
 
-    @staticmethod
-    def discretize(state):
-        # FIXME: the -1 state is overwriting the state 161
-        # TODO: find a different state representation
-        cart_position = state[0]
-        cart_velocity = state[1]
-        pole_angle = state[2]
-        pole_velocity = state[3]
+    def discretize(self, obs):
+        # TODO: review
+        ratios = [(obs[i] + self.upper_bounds[i]) / (self.upper_bounds[i] - self.lower_bounds[i]) for i in range(len(obs))]
+        classified_obs = [int(round((self.buckets[i] - 1) * ratios[i])) for i in range(len(obs))]
+        classified_obs = [min(self.buckets[i] - 1, max(0, classified_obs[i])) for i in range(len(obs))]
 
-        if not (-2.4 < cart_position < 2.4) or not (-TWELVE_DEGREES < pole_angle < TWELVE_DEGREES):
-            return -1
+        state = 0
+        for i in range(len(classified_obs)):
+            state += classified_obs[i] - 1 if i == 0 else (classified_obs[i] - 1) * self.buckets[i-1]
 
-        if cart_position < -0.8:
-            discrete_state = 0
-        elif cart_position < 0.8:
-            discrete_state = 1
-        else:
-            discrete_state = 2
-
-        if cart_velocity < 0.5:
-            discrete_state += 3
-        elif cart_velocity >= -0.5:
-            discrete_state += 6
-
-        if pole_angle < -SIX_DEGREES:
-            pass
-        elif pole_angle < -ONE_DEGREE:
-            discrete_state += 9
-        elif pole_angle < 0:
-            discrete_state += 18
-        elif pole_angle < ONE_DEGREE:
-            discrete_state += 27
-        elif pole_angle < SIX_DEGREES:
-            discrete_state += 36
-        else:
-            discrete_state += 45
-
-        if pole_velocity < -FIFTY_DEGREES:
-            pass
-        elif pole_velocity < FIFTY_DEGREES:
-            discrete_state += 54
-        else:
-            discrete_state += 108
-
-        return discrete_state
+        return state
 
     def predict_action(self, state):
         discrete_state = self.discretize(state)
 
-        if discrete_state == -1:
-            action = -1
-        elif random.uniform(0, 1) < EXPLORATION:
+        if random.uniform(0, 1) < EXPLORATION:
             action = random.randint(0, self.action_space - 1)  # Explore action space
         else:
             action = np.argmax(self.q_table[discrete_state])  # Exploit learned values
@@ -96,19 +61,19 @@ class QLAgent:
         new_value = (1 - LEARNING_RATE) * old_value + LEARNING_RATE * (reward + DISCOUNT_FACTOR * next_max)
         self.q_table[discrete_old_state, action] = new_value
 
-        #if self.epsilon > EXPLORATION_MIN:
-        #    self.epsilon *= 0.9
+        # TODO: reduce the learning rate and exploration
 
 # TODO: DQNAgent (on a different file)
 
 if __name__ == '__main__':
     env = gym.make('CartPole-v1')
 
-    agent = QLAgent(env.observation_space.shape[0], env.action_space.n)
+    agent = QLAgent(env.observation_space, env.action_space.n)
 
     for i in range(100000):
         state = env.reset()
-        #env.render()
+        #if i > 10000:
+        #    env.render()
 
         epochs = 0
         done = False
@@ -116,12 +81,7 @@ if __name__ == '__main__':
         while not done:
             action = agent.predict_action(state)
 
-            if action == -1:
-                agent.update_table(state, state, i%2==0, -10)
-                break
-
             next_state, reward, done, info = env.step(action)
-
             agent.update_table(state, next_state, action, reward)
 
             state = next_state
