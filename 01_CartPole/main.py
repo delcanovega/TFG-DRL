@@ -9,11 +9,6 @@ LEARNING_RATE = 0.1
 DISCOUNT_FACTOR = 1.0
 EXPLORATION = 0.3
 
-# Angle conversions
-TWO_DEGREES = 0.0349065
-SIX_DEGREES = 0.1047192
-TWELVE_DEGREES = 0.2094384
-
 # TODO: move this class to a different file
 class QLAgent:
     def __init__(self, state_space, action_space):
