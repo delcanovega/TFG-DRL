@@ -7,7 +7,7 @@ import math
 # TODO: improve - maybe gridsearch-like method?
 LEARNING_RATE = 0.1
 DISCOUNT_FACTOR = 1.0
-EXPLORATION = 0.3
+EXPLORATION = 0.35
 
 # TODO: move this class to a different file
 class QLAgent:
@@ -18,21 +18,20 @@ class QLAgent:
         self.lower_bounds = [self.state_space.low[0], -0.5, self.state_space.low[2], -math.radians(50)]
 
         self.buckets = (1, 1, 6, 12)  # TODO: try out other values
-        self.n_states = 0
-        for i in range(len(self.buckets)):
-            self.n_states += self.buckets[i] - 1 if i == 0 else (self.buckets[i] - 1) * self.buckets[i-1]
+        self.n_states = 1
+        for i in self.buckets:
+            self.n_states *= i
 
         self.q_table = np.zeros([self.n_states, self.action_space])
 
     def discretize(self, obs):
-        # TODO: review
         ratios = [(obs[i] + self.upper_bounds[i]) / (self.upper_bounds[i] - self.lower_bounds[i]) for i in range(len(obs))]
         classified_obs = [int(round((self.buckets[i] - 1) * ratios[i])) for i in range(len(obs))]
         classified_obs = [min(self.buckets[i] - 1, max(0, classified_obs[i])) for i in range(len(obs))]
 
         state = 0
         for i in range(len(classified_obs)):
-            state += classified_obs[i] - 1 if i == 0 else (classified_obs[i] - 1) * self.buckets[i-1]
+            state += classified_obs[i] if i == 0 else (classified_obs[i]) * self.buckets[i-1]
 
         return state
 
@@ -58,17 +57,20 @@ class QLAgent:
 
         # TODO: reduce the learning rate and exploration
 
+
 # TODO: DQNAgent (on a different file)
+
 
 if __name__ == '__main__':
     env = gym.make('CartPole-v1')
 
     agent = QLAgent(env.observation_space, env.action_space.n)
 
+    average_epochs = 0
     for i in range(100000):
         state = env.reset()
-        #if i > 10000:
-        #    env.render()
+        if i > 1000:
+            env.render()
 
         epochs = 0
         done = False
@@ -82,5 +84,7 @@ if __name__ == '__main__':
             state = next_state
             epochs += 1
 
+        average_epochs += epochs
         if i % 100 == 0:
-            print("Simulation {} ended in {} epochs".format(i, epochs))
+            print("Simulation {} ended with {} average score".format(i, round(average_epochs / 100)))
+            average_epochs = 0
