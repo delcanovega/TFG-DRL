@@ -10,13 +10,14 @@ if __name__ == '__main__':
     average_reward = 0
     for i in range(100000):
         state = env.reset()
-        #if i > 1000:
-        #    env.render()
 
         epochs = 0
         done = False
 
         while not done:
+            if i > 3000:
+                env.render()
+
             action = agent.predict_action(state)
 
             next_state, reward, done, info = env.step(action)
