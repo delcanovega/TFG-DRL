@@ -27,6 +27,7 @@ if __name__ == '__main__':
             epochs += 1
             average_reward += reward
 
+        agent.decrease_exploration()
         if i % 100 == 0:
             print("Simulation {} ended with {} average score".format(i, round(average_reward / 100)))
             average_reward = 0
