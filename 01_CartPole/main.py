@@ -7,15 +7,14 @@ if __name__ == '__main__':
 
     agent = QLAgent(env.observation_space, env.action_space.n)
 
-    average_reward = 0
-    for i in range(100000):
+    acc_reward = 0
+    for i in range(10000):
         state = env.reset()
 
-        epochs = 0
         done = False
 
         while not done:
-            if i > 3000:
+            if i > 1500:
                 env.render()
 
             action = agent.predict_action(state)
@@ -24,10 +23,10 @@ if __name__ == '__main__':
             agent.update_table(state, next_state, action, reward)
 
             state = next_state
-            epochs += 1
-            average_reward += reward
+            acc_reward += reward
 
         agent.decrease_exploration()
-        if i % 100 == 0:
-            print("Simulation {} ended with {} average score".format(i, round(average_reward / 100)))
-            average_reward = 0
+
+        if i % 100 == 0 and i > 0:
+            print("Simulations {}-{} ended with {} average score".format(i - 100, i, round(acc_reward / 100)))
+            acc_reward = 0
