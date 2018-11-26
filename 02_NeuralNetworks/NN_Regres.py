@@ -6,11 +6,13 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import KFold
-
+from keras.datasets import boston_housing
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 INPUT_DIMENSION = 0
-DATA_FILE = ''
 
 #Función de normalización para atributos con distintos rangos
 def norm(X):
@@ -36,7 +38,7 @@ def load_data():
 def baseline_model():
     model = Sequential()
     model.add(Dense(INPUT_DIMENSION, input_dim=INPUT_DIMENSION, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(30, activation='relu'))
+    model.add(Dense(6, activation='relu'))
     model.add(Dense(1, kernel_initializer='normal', activation='softmax'))
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
     return model
@@ -45,10 +47,14 @@ def baseline_model():
 if __name__ == '__main__':
     seed = 7
     np.random.seed(seed)
-
-    X, Y = load_data()
+    
+    (x_train, y_train), (x_test, y_test) = boston_housing.load_data()
+    scaler = StandardScaler()
+    scaler.fit(x_train)
+    X_train = scaler.transform(x_train)
+    X_test = scaler.transform(x_test)
+    INPUT_DIMENSION = X_train.shape[1]
     estimator = KerasRegressor(build_fn=baseline_model, epochs=100, batch_size=5, verbose=0)
-
-    kfold = KFold(n_splits=10, random_state=seed)
-    results = cross_val_score(estimator, X, Y, cv=kfold)
+    estimator.fit(np.array(X_train),np.array(y_train))
+    results = cross_val_score(estimator, X_test, y_test, cv=kfold)
     print("Results: %.2f (%.2f) MSE" % (results.mean(), results.std()))
