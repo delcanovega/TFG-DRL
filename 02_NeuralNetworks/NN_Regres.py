@@ -40,11 +40,6 @@ def load_data():
 def baseline_model():
     model = Sequential()
     model.add(Dense(INPUT_DIMENSION, input_dim=INPUT_DIMENSION, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(100, activation='relu'))
-    model.add(Dense(10, activation='relu'))
-    model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
-    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-    #model.add(Dense(100, activation='relu'))
     model.add(Dense(26, activation='relu'))
     model.add(Dense(1, kernel_initializer='normal', activation='relu'))
     model.compile(loss='mean_squared_error', optimizer='adam' )
@@ -59,14 +54,10 @@ if __name__ == '__main__':
     X_train = scaler.transform(x_train)
     X_test = scaler.transform(x_test)
     INPUT_DIMENSION = X_train.shape[1]
-    estimator = KerasRegressor(build_fn=baseline_model, epochs=100, batch_size=3, verbose=0)
-    estimator.fit(np.array(X_train),np.array(y_train))
-    results = cross_val_score(estimator, X_test, y_test, cv = 5)
-    print("Results: %.2f (%.2f) MSE" % (results.mean(), results.std()))
     
     modelo = baseline_model()
     #si pones X_train y X_test la funcion de aprendizaje  se suaviza y queda mas bonita  
-    results = modelo.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=150, verbose=0)
+    results = modelo.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=150, verbose=1)
     
     s1 = results.history["loss"]
     s2 = results.history["val_loss"]
