@@ -29,14 +29,6 @@ def norm(X):
             X_norm[i][j] = (X[i][j] - mu[j])/sigma[j]
     return X_norm
 
-#Carga de datos (una sola salida)
-def load_data():
-    data = pd.read_csv(DATA_FILE).values
-    x = data[:, 0:INPUT_DIMENSION]
-    y = data[:, INPUT_DIMENSION]
-    return x, y
-
-
 def baseline_model():
     model = Sequential()
     model.add(Dense(INPUT_DIMENSION, input_dim=INPUT_DIMENSION, kernel_initializer='normal', activation='relu'))
