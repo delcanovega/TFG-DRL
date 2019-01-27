@@ -105,3 +105,6 @@ venv.bak/
 
 # vs code config
 .vscode/
+
+# pycharm config
+.idea/
