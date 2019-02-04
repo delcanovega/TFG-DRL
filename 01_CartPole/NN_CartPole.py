@@ -12,7 +12,7 @@ EXPLORATION_MIN = 0.1
 HIDDEN_LAYER_SIZE = 16
 
 # HYPERPARAMETERS
-LEARNING_RATE = 1.0
+LEARNING_RATE = 0.001
 DISCOUNT_FACTOR = 0.95
 EXPLORATION = 1.0
 
@@ -32,11 +32,11 @@ class DQNAgent:
         # Neural Network structure
         self.model = Sequential()
         # Input Layer of state size(4) and Hidden Layer with 16 nodes
-        self.model.add(Dense(24, input_dim=self.state_space, activation='relu'))
+        self.model.add(Dense(HIDDEN_LAYER_SIZE, input_dim=self.state_space, activation='relu'))
         # Hidden layer with 16 nodes
-        self.model.add(Dense(24, activation='relu'))
+        self.model.add(Dense(HIDDEN_LAYER_SIZE, activation='relu')) #sigmoid #dropout
         # Output Layer with # of actions: 2 nodes (left, right)
-        self.model.add(Dense(self.action_space, activation='linear'))
+        self.model.add(Dense(self.action_space, activation='linear')) #softmax
 
         self.model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
 
