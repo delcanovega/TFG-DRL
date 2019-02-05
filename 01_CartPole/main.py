@@ -9,15 +9,15 @@ from collections import deque
 
 from NN_CartPole import DQNAgent
 
-EPISODES = 500
+EPISODES = 1000
 
 if __name__ == '__main__':
     env = gym.make('CartPole-v1')
 
     agent = DQNAgent(env.observation_space.shape[0], env.action_space.n)
 
-    # scores = deque(maxlen=EPISODES)
-    # performance = []
+    scores = deque(maxlen=EPISODES)
+    performance = []
 
     for i in range(EPISODES):
         state = env.reset()
@@ -39,11 +39,11 @@ if __name__ == '__main__':
             state = next_state
             acc_reward += reward
 
-        # scores.append(acc_reward)
-        # performance.append(np.mean(scores))
+        scores.append(acc_reward)
+        performance.append(np.mean(scores))
 
         print("Episode {}/{} Score {}".format(i+1, EPISODES, int(acc_reward)))
-        agent.replay(32)
+        agent.replay(100)
 
         # if i % 100 == 0 and i > 0:
         #     print("Simulations {}-{} ended with {} average score".format(i - 100, i, round(acc_reward / 100)))
@@ -51,13 +51,13 @@ if __name__ == '__main__':
 
 
     # # Plot the results
-    # performance = list(map(lambda x: 200 if x > 200 else x, performance))  # Limit the performance to 200
+    performance = list(map(lambda x: 200 if x > 200 else x, performance))  # Limit the performance to 200
     
-    # fig, ax = plt.subplots()
-    # ax.set(xlabel='Episodio', ylabel='Media de los últimos 100 episodios')
-    # ax.grid()
+    fig, ax = plt.subplots()
+    ax.set(xlabel='Episodio', ylabel='Media de todos los episodios')
+    ax.grid()
     
-    # ax.plot(performance, color='blue')
-    # ax.plot([195 for i in range(len(performance))], color='green')
+    ax.plot(performance, color='blue')
+    ax.plot([195 for i in range(len(performance))], color='green')
 
-    # plt.show()
+    plt.show()
