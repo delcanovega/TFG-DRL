@@ -1,5 +1,3 @@
-#coding=UTF-8
-
 # Imports
 import gym
 import matplotlib.pyplot as plt
@@ -11,22 +9,16 @@ from drl_agent import SimpleAgent
 
 EPISODES = 1000
 
-if __name__ == '__main__':
-    env = gym.make('CartPole-v1')
-
-    agent = SimpleAgent(env.observation_space.shape[0], env.action_space.n)
-
+def simulate(env, agent):
     scores = deque(maxlen=100)
     performance = []
 
     for i in range(EPISODES):
         state = env.reset()
-        state = np.reshape(state, [1, env.observation_space.shape[0]]) # TODO: check this
-        #state = np.transpose(state, 1)
+        state = np.reshape(state, [1, env.observation_space.shape[0]])
 
         done = False
         acc_reward = 0
-
         while not done:
             # if i > 1500:
             #    env.render()
@@ -34,33 +26,52 @@ if __name__ == '__main__':
             action = agent.predict_action(state)
 
             next_state, reward, done, info = env.step(action)
-            next_state = np.reshape(next_state, [1, env.observation_space.shape[0]]) # TODO: check this
-            #next_state = np.transpose(next_state, 1)
+            next_state = np.reshape(next_state, [1, env.observation_space.shape[0]])
 
             agent.update_model(state, action, reward, next_state)
             agent.update_hyperparameters()
+            
             state = next_state
             acc_reward += reward
 
         scores.append(acc_reward)
         performance.append(np.mean(scores))
 
-        print("Episode {}/{} Score {}".format(i+1, EPISODES, int(acc_reward)))
-        #agent.replay(100)
+        print("Episode {}/{} score {}".format(i + 1, EPISODES, int(acc_reward)))
 
-        # if i % 100 == 0 and i > 0:
-        #     print("Simulations {}-{} ended with {} average score".format(i - 100, i, round(acc_reward / 100)))
-        #     acc_reward = 0
-
-
-    # # Plot the results
-    performance = list(map(lambda x: 200 if x > 200 else x, performance))  # Limit the performance to 200
+        # TODO: replay for BatchAgent & RandomBatchAgent
+        # agent.replay(100)
     
-    fig, ax = plt.subplots()
+    return performance
+
+def create_plot(results):
+    colors = ['blue', 'purple', 'pink']
+
+    _, ax = plt.subplots()
     ax.set(xlabel='Episodio', ylabel='Media de todos los episodios')
     ax.grid()
+
+    ax.plot([195 for i in range(len(results[0]))], color='green')
+    for i in range(len(results)):
+        results[i] = list(map(lambda x: 200 if x > 200 else x, results))  # Limit the performance to 200
+        ax.plot(results[i], color=colors[i])
+
+    return plt
+
+
+if __name__ == '__main__':
+    env = gym.make('CartPole-v1')
+
+    results_sa = simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n))
+    # TODO:
+    # results_ba = simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n))
+    # results_rb = simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n))
+
+    # Plot the results
+    plt = create_plot([results_sa])
+    plt.show()
     
-    ax.plot(performance, color='blue')
-    ax.plot([195 for i in range(len(performance))], color='green')
+    
+    
 
     plt.show()
