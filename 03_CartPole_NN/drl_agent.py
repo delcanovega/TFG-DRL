@@ -2,19 +2,20 @@ import random
 import numpy as np
 
 from keras.models     import Sequential
-from keras.layers     import Dense
+from keras.layers     import Dense, Dropout
 from keras.optimizers import Adam
 
 from collections import deque
 
 MEMORY_SIZE = 2000
-EXPLORATION_MIN = 0.1
-HIDDEN_LAYER_SIZE = 16 # probar red mas pequeña
+HIDDEN_LAYER_SIZE = 12
 
 # HYPERPARAMETERS
-LEARNING_RATE = 0.001 # subir un poco para minibatch
-DISCOUNT_FACTOR = 0.95
-EXPLORATION = 1.0
+LEARNING_RATE = 0.1   # Alpha (try higher values for minibatch training)
+DISCOUNT_FACTOR = 0.95  # Gamma
+EXPLORATION = 0.5       # Epsilon (initial)
+MIN_EXPLORATION = 0.01  # Epsilon (final)
+
 
 # TODO: 
 # 1. entrenar por minibatch
@@ -22,6 +23,71 @@ EXPLORATION = 1.0
 # 3. probar red mas pequeña
 
 class DQNAgent:
+    """Base class for the different agent implementations.
+
+    Note:
+        Don't instantiate this class directly
+
+    """
+    def __init__(self, state_space, action_space):
+        self.state_space = state_space
+        self.action_space = action_space
+
+        # Hyperparameters
+        self.learning_rate = LEARNING_RATE
+        self.discount_factor = DISCOUNT_FACTOR
+        self.exploration = EXPLORATION
+
+        self.model = self.build_model()
+    
+    def build_model(self):
+        # Neural Network structure
+        model = Sequential()
+
+        model.add(Dense(HIDDEN_LAYER_SIZE, input_dim=self.state_space, activation='relu'))
+        model.add(Dropout(0.2))
+        model.add(Dense(HIDDEN_LAYER_SIZE, activation='relu'))
+        model.add(Dropout(0.2))
+        # Output Layer with # of actions: 2 nodes (left, right)
+        model.add(Dense(self.action_space, activation='linear'))
+
+        model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
+
+        return model
+
+    def predict_action(self, state):
+        if random.uniform(0, 1) < self.exploration:
+            action = random.randrange(self.action_space)  # Explore
+        else:
+            action_value = self.model.predict(state)
+            action = np.argmax(action_value)  # Exploit
+        return action
+
+    def update_hyperparameters(self):
+        if self.exploration > MIN_EXPLORATION:
+            self.exploration = self.exploration * 0.98
+
+class SimpleAgent(DQNAgent):
+    """Simplest implementation of an agent using a Neural Network.
+
+    It is a direct replacement of the Q-table from the RLAgent.
+
+    """
+    def __init__(self, state_space, action_space):
+        DQNAgent.__init__(self, state_space, action_space)
+
+    def update_model(self, state, action, reward, next_state):
+        old_value = self.model.predict(state)
+        next_max = np.max(self.model.predict(next_state))
+
+        new_value = (1 - self.learning_rate) * old_value + self.learning_rate * (reward + self.discount_factor * next_max)
+
+        self.model.fit(state, new_value, epochs=1, verbose=0)
+
+
+# Deprecated agent:
+# keep here as a reference until it is migrated and then delete
+class DeprecatedDQNAgent:
     def __init__(self, state_space, action_space):
         self.state_space = state_space
         self.action_space = action_space
@@ -72,5 +138,5 @@ class DQNAgent:
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0) # <--- TODO: fit de minibatch entero, no de 1 en 1
         
-        if self.exploration > EXPLORATION_MIN:
+        if self.exploration > MIN_EXPLORATION:
             self.exploration *= 0.995   # TODO: no va aqui si no en el main, o funcion aparte decrease_exploration

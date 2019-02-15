@@ -7,21 +7,22 @@ import numpy as np
 
 from collections import deque
 
-from drl_agent import DQNAgent
+from drl_agent import SimpleAgent
 
 EPISODES = 1000
 
 if __name__ == '__main__':
     env = gym.make('CartPole-v1')
 
-    agent = DQNAgent(env.observation_space.shape[0], env.action_space.n)
+    agent = SimpleAgent(env.observation_space.shape[0], env.action_space.n)
 
-    scores = deque(maxlen=EPISODES)
+    scores = deque(maxlen=100)
     performance = []
 
     for i in range(EPISODES):
         state = env.reset()
         state = np.reshape(state, [1, env.observation_space.shape[0]]) # TODO: check this
+        #state = np.transpose(state, 1)
 
         done = False
         acc_reward = 0
@@ -34,8 +35,10 @@ if __name__ == '__main__':
 
             next_state, reward, done, info = env.step(action)
             next_state = np.reshape(next_state, [1, env.observation_space.shape[0]]) # TODO: check this
+            #next_state = np.transpose(next_state, 1)
 
-            agent.update_table(state, action, reward, next_state, done)
+            agent.update_model(state, action, reward, next_state)
+            agent.update_hyperparameters()
             state = next_state
             acc_reward += reward
 
@@ -43,7 +46,7 @@ if __name__ == '__main__':
         performance.append(np.mean(scores))
 
         print("Episode {}/{} Score {}".format(i+1, EPISODES, int(acc_reward)))
-        agent.replay(100)
+        #agent.replay(100)
 
         # if i % 100 == 0 and i > 0:
         #     print("Simulations {}-{} ended with {} average score".format(i - 100, i, round(acc_reward / 100)))
