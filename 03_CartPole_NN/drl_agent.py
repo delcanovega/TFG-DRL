@@ -39,6 +39,7 @@ class DQNAgent:
         self.exploration = EXPLORATION
 
         self.model = self.build_model()
+        self.memory = deque(maxlen=MEMORY_SIZE)
     
     def build_model(self):
         # Neural Network structure
@@ -62,6 +63,41 @@ class DQNAgent:
             action_value = self.model.predict(state)
             action = np.argmax(action_value)  # Exploit
         return action
+
+    def addMemory (self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state))
+
+
+    def getMinibatch (self, minibatch_size):
+        indexes = np.random.choice(np.arrange(self.memory, size=minibatch_size, replace=False))
+        minibatch = []
+        for index in indexes:
+            minibatch.append(self.memory[index])
+        
+        return minibatch
+
+    def replay(self, minibatch_size): #TODO: To test
+        
+        if(len(self.memory) > minibatch_size):
+            minibatch = self.getMinibatch(self, minibatch_size)
+
+            inputs = np.zeros((minibatch_size,self.state_space))
+            targets = np.zeros((minibatch_size, self.action_space))
+
+            i=0
+            for state, action, reward, next_state, done in minibatch:
+                
+                inputs[i] = state
+                targets[i] = self.model.predict(np.array([state]))[0]
+                
+                if done:
+                    target[i, action] = reward
+                else:
+                    target[i, action] = reward + self.discount_factor * np.amax(self.model.predict(next_state)[0])
+            
+                i+=1
+
+            self.model.fit(inputs, targets, batch_size=minibatch_size, epochs=1, verbose=0)
 
     def update_hyperparameters(self):
         if self.exploration > MIN_EXPLORATION:
