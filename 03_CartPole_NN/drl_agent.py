@@ -46,9 +46,9 @@ class DQNAgent:
         model = Sequential()
 
         model.add(Dense(HIDDEN_LAYER_SIZE, input_dim=self.state_space, activation='relu'))
-        model.add(Dropout(0.2))
+        # model.add(Dropout(0.2))
         model.add(Dense(HIDDEN_LAYER_SIZE, activation='relu'))
-        model.add(Dropout(0.2))
+        # model.add(Dropout(0.2))
         # Output Layer with # of actions: 2 nodes (left, right)
         model.add(Dense(self.action_space, activation='linear'))
 
@@ -64,22 +64,22 @@ class DQNAgent:
             action = np.argmax(action_value)  # Exploit
         return action
 
-    def addMemory (self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state))
+    def update_model (self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
 
 
     def getMinibatch (self, minibatch_size):
-        indexes = np.random.choice(np.arrange(self.memory, size=minibatch_size, replace=False))
+        indexes = np.random.choice(np.arange(len(self.memory)), size=minibatch_size, replace=False)
         minibatch = []
         for index in indexes:
             minibatch.append(self.memory[index])
         
         return minibatch
 
-    def replay(self, minibatch_size): #TODO: To test
+    def replay(self, minibatch_size):
         
         if(len(self.memory) > minibatch_size):
-            minibatch = self.getMinibatch(self, minibatch_size)
+            minibatch = self.getMinibatch(minibatch_size)
 
             inputs = np.zeros((minibatch_size,self.state_space))
             targets = np.zeros((minibatch_size, self.action_space))
@@ -88,16 +88,17 @@ class DQNAgent:
             for state, action, reward, next_state, done in minibatch:
                 
                 inputs[i] = state
-                targets[i] = self.model.predict(np.array([state]))[0]
+                targets[i] = self.model.predict(state)[0]
                 
                 if done:
-                    target[i, action] = reward
+                    targets[i, action] = reward
                 else:
-                    target[i, action] = reward + self.discount_factor * np.amax(self.model.predict(next_state)[0])
+                    targets[i, action] = reward + self.discount_factor * np.amax(self.model.predict(next_state)[0])
             
                 i+=1
 
-            self.model.fit(inputs, targets, batch_size=minibatch_size, epochs=1, verbose=0)
+            # self.model.fit(inputs, targets, batch_size=minibatch_size, epochs=1, verbose=0)
+            self.model.train_on_batch(inputs, targets)
 
     def update_hyperparameters(self):
         if self.exploration > MIN_EXPLORATION:
