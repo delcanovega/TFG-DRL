@@ -4,7 +4,7 @@ import numpy as np
 
 from collections import deque
 
-from drl_agent import SimpleAgent, RandomBatchAgent
+from drl_agent import SimpleAgent, BatchAgent, RandomBatchAgent
 
 EPISODES = 1000
 
@@ -39,7 +39,7 @@ def simulate(env, agent):
         print("Episode {}/{} score {}".format(i + 1, EPISODES, int(acc_reward)))
 
         if agent.supports_replay():
-            agent.replay(100)
+            agent.replay()
     
     return performance
 
@@ -53,7 +53,7 @@ def create_plot(results):
 
     ax.plot([195 for i in range(len(results[0]))], color='green')
     for i in range(len(results)):
-        results[i] = list(map(lambda x: 200 if x > 200 else x, results))  # Limit the performance to 200
+        results[i] = list(map(lambda x: 200 if x > 200 else x, results[i]))  # Limit the performance to 200
         ax.plot(results[i], color=colors[i])
 
     return plt
@@ -62,11 +62,11 @@ def create_plot(results):
 if __name__ == '__main__':
     env = gym.make('CartPole-v1')
 
-    results_sa = simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n))
-    # TODO:
-    # results_ba = simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n))
-    results_rb = simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n))
+    results = []
+    results.append(simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n)))
+    #results.append(simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n)))
+    #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
 
     # Plot the results
-    plt = create_plot([results_sa, results_rb])
+    plt = create_plot(results)
     plt.show()
