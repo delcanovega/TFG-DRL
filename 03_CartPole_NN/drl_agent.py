@@ -4,23 +4,25 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import Adam
+from keras.initializers import Constant
 
 from collections import deque
+from itertools import chain
 
-MEMORY_SIZE = 2000
-HIDDEN_LAYER_SIZE = 12
 
 # HYPERPARAMETERS
-LEARNING_RATE = 0.1     # Alpha (try higher values for minibatch training)
-DISCOUNT_FACTOR = 0.95  # Gamma
-EXPLORATION = 0.5       # Epsilon (initial)
-MIN_EXPLORATION = 0.01  # Epsilon (final)
 
+# Reinforcement Learning:
+LEARNING_RATE = 0.1         # Alpha (try higher values for minibatch training)
+DISCOUNT_FACTOR = 0.95      # Gamma
+EXPLORATION = 0.5           # Epsilon (initial)
+MIN_EXPLORATION = 0.01      # Epsilon (final)
 
-# TODO: 
-# 1. entrenar por minibatch
-# 2. regularizar red
-# 3. probar red mas pequeña
+# Agent:
+MEMORY_SIZE = 2000
+HIDDEN_LAYER_SIZE = 12
+MINIBATCH_SIZE = 100
+
 
 class DQNAgent:
     """Base class for the different agent implementations.
@@ -78,16 +80,54 @@ class SimpleAgent(DQNAgent):
         DQNAgent.__init__(self, state_space, action_space)
 
     def update_model(self, state, action, reward, next_state, done):
-        old_value = self.model.predict(state)
+        target = self.model.predict(state)
         next_max = np.max(self.model.predict(next_state))
 
-        new_value = (1 - self.learning_rate) * old_value + self.learning_rate * (reward + self.discount_factor * next_max)
+        target[0][action] = reward + self.discount_factor * next_max
 
-        self.model.fit(state, new_value, epochs=1, verbose=0)
+        self.model.fit(state, target, epochs=1, verbose=0)
 
-    @property
-    def supports_replay(self):
+    @staticmethod
+    def supports_replay():
         return False
+
+
+# FIXME
+class BatchAgent(DQNAgent):
+    def __init__(self, state_space, action_space):
+        DQNAgent.__init__(self, state_space, action_space)
+
+        self.memory = deque(maxlen=MEMORY_SIZE)
+
+    def update_model(self, state, action, reward, next_state, done):
+        predicted_reward = np.max(self.model.predict(next_state))
+        target = reward + self.discount_factor * predicted_reward
+
+        mem = (state[0][0], state[0][1], state[0][2], state[0][3], target)
+        self.memory.append(mem)
+
+    @staticmethod
+    def supports_replay():
+        return True
+
+    def get_minibatch(self):
+        iterator = reversed(self.memory)
+        minibatch = []
+        for i in range(MINIBATCH_SIZE):
+            minibatch.append(next(iterator))
+        return minibatch
+
+    def replay(self):
+        if len(self.memory) > MINIBATCH_SIZE:
+            minibatch = self.get_minibatch()
+
+            inputs = []
+            targets = []
+            for state_0, state_1, state_2, state_3, reward in minibatch:
+                inputs.append((state_0, state_1, state_2, state_3))
+                targets.append(reward)
+
+            self.model.train_on_batch(inputs, targets)
 
 
 class RandomBatchAgent(DQNAgent):
@@ -103,20 +143,20 @@ class RandomBatchAgent(DQNAgent):
     def supports_replay(self):
         return True
 
-    def get_minibatch(self, minibatch_size):
-        indexes = np.random.choice(np.arange(len(self.memory)), size=minibatch_size, replace=False)
+    def get_minibatch(self):
+        indexes = np.random.choice(np.arange(len(self.memory)), size=MINIBATCH_SIZE, replace=False)
         minibatch = []
         for index in indexes:
             minibatch.append(self.memory[index])
 
         return minibatch
 
-    def replay(self, minibatch_size):
-        if len(self.memory) > minibatch_size:
-            minibatch = self.get_minibatch(minibatch_size)
+    def replay(self):
+        if len(self.memory) > MINIBATCH_SIZE:
+            minibatch = self.get_minibatch()
 
-            inputs = np.zeros((minibatch_size, self.state_space))
-            targets = np.zeros((minibatch_size, self.action_space))
+            inputs = np.zeros((MINIBATCH_SIZE, self.state_space))
+            targets = np.zeros((MINIBATCH_SIZE, self.action_space))
 
             i = 0
             for state, action, reward, next_state, done in minibatch:
