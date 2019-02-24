@@ -92,7 +92,6 @@ class SimpleAgent(DQNAgent):
         return False
 
 
-# FIXME
 class BatchAgent(DQNAgent):
     def __init__(self, state_space, action_space):
         DQNAgent.__init__(self, state_space, action_space)
@@ -100,34 +99,29 @@ class BatchAgent(DQNAgent):
         self.memory = deque(maxlen=MEMORY_SIZE)
 
     def update_model(self, state, action, reward, next_state, done):
-        predicted_reward = np.max(self.model.predict(next_state))
-        target = reward + self.discount_factor * predicted_reward
+        target = self.model.predict(state)
+        next_max = np.max(self.model.predict(next_state))
 
-        mem = (state[0][0], state[0][1], state[0][2], state[0][3], target)
-        self.memory.append(mem)
+        target[0][action] = reward + self.discount_factor * next_max
+
+        self.memory.append((state, target))
 
     @staticmethod
     def supports_replay():
         return True
 
-    def get_minibatch(self):
-        iterator = reversed(self.memory)
-        minibatch = []
-        for i in range(MINIBATCH_SIZE):
-            minibatch.append(next(iterator))
-        return minibatch
-
     def replay(self):
-        if len(self.memory) > MINIBATCH_SIZE:
-            minibatch = self.get_minibatch()
+        iter = reversed(self.memory)
+        #inputs = np.empty_like(self.memory[0][0])
+        #targets = np.empty_like(self.memory[0][1])
+        inputs = np.empty((MINIBATCH_SIZE, self.state_space))
+        targets = np.empty((MINIBATCH_SIZE, self.action_space))
+        for _ in range(len(self.memory) if len(self.memory) < MINIBATCH_SIZE else MINIBATCH_SIZE):
+            record = next(iter)
+            np.append(inputs, record[0])
+            np.append(targets, record[1])
 
-            inputs = []
-            targets = []
-            for state_0, state_1, state_2, state_3, reward in minibatch:
-                inputs.append((state_0, state_1, state_2, state_3))
-                targets.append(reward)
-
-            self.model.train_on_batch(inputs, targets)
+        self.model.train_on_batch(inputs, targets)
 
 
 class RandomBatchAgent(DQNAgent):

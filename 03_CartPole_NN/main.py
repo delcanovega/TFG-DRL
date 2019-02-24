@@ -28,19 +28,19 @@ def simulate(env, agent):
             next_state = np.reshape(next_state, [1, env.observation_space.shape[0]])
 
             agent.update_model(state, action, reward, next_state, done)
-            
+
             state = next_state
             acc_reward += reward
 
         agent.update_hyperparameters()
+        if agent.supports_replay():
+            agent.replay()
 
         scores.append(acc_reward)
         performance.append(np.mean(scores))
         print("Episode {}/{} score {}".format(i + 1, EPISODES, int(acc_reward)))
 
-        if agent.supports_replay():
-            agent.replay()
-    
+
     return performance
 
 
@@ -63,8 +63,9 @@ if __name__ == '__main__':
     env = gym.make('CartPole-v1')
 
     results = []
-    results.append(simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n)))
-    #results.append(simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n)))
+    # Uncomment the agent that you want to test
+    #results.append(simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n)))
+    results.append(simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n)))
     #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
 
     # Plot the results
