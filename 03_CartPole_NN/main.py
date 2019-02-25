@@ -4,6 +4,7 @@ import numpy as np
 
 from collections import deque
 
+# Comment this to launch on server
 from drl_agent import SimpleAgent, BatchAgent, RandomBatchAgent
 
 EPISODES = 1000
@@ -65,8 +66,8 @@ if __name__ == '__main__':
     results = []
     # Uncomment the agent that you want to test
     #results.append(simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n)))
-    results.append(simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n)))
-    #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
+    #results.append(simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n)))
+    results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
 
     # Plot the results
     plt = create_plot(results)

@@ -133,12 +133,12 @@ class RandomBatchAgent(DQNAgent):
     def update_model(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
 
-    @property
-    def supports_replay(self):
+    @staticmethod
+    def supports_replay():
         return True
 
-    def get_minibatch(self):
-        indexes = np.random.choice(np.arange(len(self.memory)), size=MINIBATCH_SIZE, replace=False)
+    def get_minibatch(self, batch_size):
+        indexes = np.random.choice(np.arange(len(self.memory)), size=batch_size, replace=False)
         minibatch = []
         for index in indexes:
             minibatch.append(self.memory[index])
@@ -146,26 +146,30 @@ class RandomBatchAgent(DQNAgent):
         return minibatch
 
     def replay(self):
-        if len(self.memory) > MINIBATCH_SIZE:
-            minibatch = self.get_minibatch()
+        if len(self.memory) < MINIBATCH_SIZE:
+            batch_size = len(self.memory)
+        else:
+            batch_size = MINIBATCH_SIZE    
+            
+        minibatch = self.get_minibatch(batch_size)
 
-            inputs = np.zeros((MINIBATCH_SIZE, self.state_space))
-            targets = np.zeros((MINIBATCH_SIZE, self.action_space))
+        inputs = np.zeros((len(minibatch), self.state_space))
+        targets = np.zeros((len(minibatch), self.action_space))
 
-            i = 0
-            for state, action, reward, next_state, done in minibatch:
+        i = len(minibatch)
+        for state, action, reward, next_state, done in minibatch:
 
-                inputs[i] = state
-                targets[i] = self.model.predict(state)[0]
+            inputs[i-1] = state
+            targets[i-1] = self.model.predict(state)[0]
 
-                if done:
-                    targets[i, action] = reward
-                else:
-                    targets[i, action] = reward + self.discount_factor * np.amax(self.model.predict(next_state)[0])
+            if done:
+                targets[i-1, action] = reward
+            else:
+                targets[i-1, action] = reward + self.discount_factor * np.amax(self.model.predict(next_state)[0])
 
-                i += 1
+            i -= 1
 
-            self.model.train_on_batch(inputs, targets)
+        self.model.train_on_batch(inputs, targets)
 
 
 # Deprecated agent:
