@@ -139,11 +139,11 @@ class RandomBatchAgent(DQNAgent):
 
     def get_minibatch(self, batch_size):
         indexes = np.random.choice(np.arange(len(self.memory)), size=batch_size, replace=False)
-        minibatch = []
-        for index in indexes:
-            minibatch.append(self.memory[index])
+        # minibatch = []
+        # for index in indexes:
+        #     minibatch.append(self.memory[index])
 
-        return minibatch
+        return indexes
 
     def replay(self):
         if len(self.memory) < MINIBATCH_SIZE:
@@ -151,25 +151,32 @@ class RandomBatchAgent(DQNAgent):
         else:
             batch_size = MINIBATCH_SIZE    
             
-        minibatch = self.get_minibatch(batch_size)
+        # minibatch = self.get_minibatch(batch_size)
 
-        inputs = np.zeros((len(minibatch), self.state_space))
-        targets = np.zeros((len(minibatch), self.action_space))
+        inputs = np.zeros((len(self.memory), self.state_space))
+        targets = np.zeros((len(self.memory), self.action_space))
 
-        i = len(minibatch)
-        for state, action, reward, next_state, done in minibatch:
+        i = len(self.memory)
+        for state, action, reward, next_state, done in self.memory:
 
             inputs[i-1] = state
             targets[i-1] = self.model.predict(state)[0]
+            targets[i-1, action] = reward
 
-            if done:
-                targets[i-1, action] = reward
-            else:
+            if not done:
                 targets[i-1, action] = reward + self.discount_factor * np.amax(self.model.predict(next_state)[0])
 
             i -= 1
+        inputs_batch = np.zeros((batch_size, self.state_space))
+        targets_batch = np.zeros((batch_size, self.action_space))
 
-        self.model.train_on_batch(inputs, targets)
+        minibatch = self.get_minibatch(batch_size)
+        j=0
+        for index in minibatch:
+            inputs_batch[j] = inputs[index]
+            targets_batch[j] = targets[index]
+            j+=1
+        self.model.train_on_batch(inputs_batch, targets_batch)
 
 
 # Deprecated agent:
