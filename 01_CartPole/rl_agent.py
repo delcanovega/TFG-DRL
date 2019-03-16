@@ -10,7 +10,7 @@ MIN_EXPLORATION = 0.01  # Epsilon (final)
 
 
 class QLAgent:
-    def __init__(self, state_space, action_space):
+    def __init__(self, config, state_space, action_space):
         self.action_space = action_space
         self.state_space = state_space
 
@@ -20,11 +20,7 @@ class QLAgent:
 
         self.exploration = EXPLORATION
 
-        self.buckets = (1, 1, 3, 6)
-        self.n_states = 1
-        for i in self.buckets:
-            self.n_states *= i
-
+        self.buckets = config
         self.q_table = np.zeros(self.buckets + (self.action_space,))
 
     def discretize(self, obs):
@@ -56,4 +52,4 @@ class QLAgent:
 
     def decrease_exploration(self):
         if self.exploration > MIN_EXPLORATION:
-            self.exploration = self.exploration * 0.99
+            self.exploration *= 0.99
