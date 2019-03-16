@@ -12,15 +12,15 @@ from collections import deque
 # HYPERPARAMETERS
 
 # Reinforcement Learning:
-LEARNING_RATE = 0.001         # Alpha (try higher values for minibatch training)
+LEARNING_RATE = 0.0001      # Alpha (try higher values for minibatch training)
 DISCOUNT_FACTOR = 0.95      # Gamma
-EXPLORATION = 1.0           # Epsilon (initial)
+EXPLORATION = 0.5           # Epsilon (initial)
 MIN_EXPLORATION = 0.01      # Epsilon (final)
 
 # Agent:
 MEMORY_SIZE = 2000
 HIDDEN_LAYER_SIZE = 24
-MINIBATCH_SIZE = 20
+MINIBATCH_SIZE = 32
 
 
 class DQNAgent:
@@ -67,7 +67,7 @@ class DQNAgent:
 
     def update_hyperparameters(self):
         if self.exploration > MIN_EXPLORATION:
-            self.exploration = self.exploration * 0.995
+            self.exploration *= 0.995
 
 
 class SimpleAgent(DQNAgent):
@@ -138,46 +138,21 @@ class RandomBatchAgent(DQNAgent):
     def supports_replay():
         return True
 
-    def get_minibatch(self, batch_size):
-        indexes = np.random.choice(np.arange(len(self.memory)), size=batch_size, replace=False)
-        # minibatch = []
-        # for index in indexes:
-        #     minibatch.append(self.memory[index])
-
-        return indexes
-
     def replay(self):
-        if len(self.memory) < MINIBATCH_SIZE:
-            batch_size = len(self.memory)
-        else:
-            batch_size = MINIBATCH_SIZE    
-            
-        # minibatch = self.get_minibatch(batch_size)
+        batch_size = min(len(self.memory), MINIBATCH_SIZE)
+        minibatch = random.sample(self.memory, batch_size)
 
-        inputs = np.zeros((len(self.memory), self.state_space))
-        targets = np.zeros((len(self.memory), self.action_space))
+        # inputs = np.zeros((batch_size, self.state_space))
+        # targets = np.zeros((batch_size, self.action_space))
+        for state, action, reward, next_state, done in minibatch:
+            q_update = -reward if done else self.bellman(reward, next_state)
+            target = self.model.predict(state)
+            target[0][action] = q_update
 
-        i = len(self.memory)
-        for state, action, reward, next_state, done in self.memory:
-
-            inputs[i-1] = state
-            targets[i-1] = self.model.predict(state)[0]
-            targets[i-1, action] = reward
-
-            if not done:
-                targets[i-1, action] = reward + self.discount_factor * np.amax(self.model.predict(next_state)[0])
-
-            i -= 1
-        inputs_batch = np.zeros((batch_size, self.state_space))
-        targets_batch = np.zeros((batch_size, self.action_space))
-
-        minibatch = self.get_minibatch(batch_size)
-        j=0
-        for index in minibatch:
-            inputs_batch[j] = inputs[index]
-            targets_batch[j] = targets[index]
-            j+=1
-        self.model.train_on_batch(inputs_batch, targets_batch)
+            self.model.fit(state, target, verbose=0)
+            # np.append(inputs, state)
+            # np.append(targets, target)
+        # self.model.train_on_batch(inputs, targets)
 
 
 # Deprecated agent:
