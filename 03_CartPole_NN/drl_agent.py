@@ -63,7 +63,7 @@ class DQNAgent:
         return action
     
     def bellman(self, reward, next_state):
-        return reward + self.learning_rate * np.amax(self.model.predict(next_state)[0])
+        return reward + self.discount_factor * np.amax(self.model.predict(next_state)[0])
 
     def update_hyperparameters(self):
         if self.exploration > MIN_EXPLORATION:
