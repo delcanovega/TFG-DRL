@@ -7,13 +7,13 @@
 
 1. Instalar [anaconda 3](https://www.anaconda.com/download).
 2. _(Recomendado)_ crear un entorno virtual en el que instalar las librerías necesarias.
-```
+``` bash
 > conda create --name TFG
 ```
-Recordar activar el entorno antes de instalar librerías en él (se desactiva al apagar/reiniciar).
+Recordar activar el entorno antes de instalar librerías en él (se desactiva al apagar/reiniciar o cerrar el terminal).
 ``` bash
 # Desde Windows
-> activate TFG
+> activate TFG  # Si PowerShell da problemas usar cmd o AnacondaPrompt
 
 # Desde Linux / macOS
 > source activate TFG
@@ -23,14 +23,13 @@ Recordar activar el entorno antes de instalar librerías en él (se desactiva al
 ```
 3. Librerías usadas
 ``` bash
-> conda install tensorflow
-> conda install pandas
-> conda install numpy
 > conda install matplotlib
-> conda install scikit-learn
+# Keras debería instalar automáticamente todas las dependencias/librerías: tensorflow, pandas, numpy y scikit-learn
+# Si no fuese así es importante que se instalen ANTES de Keras, ya que este reducirá las versiones por compatibilidad
 > conda install keras
 > conda install pylint
 > pip install autopep8  # Si se quiere usar el code formatter
+> pip install gym
 ```
 
 ### VS Code

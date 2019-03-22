@@ -6,7 +6,7 @@ import copy
 from collections import deque
 
 # Comment this to launch on server
-from drl_agent import SimpleAgent, BatchAgent, RandomBatchAgent
+from drl_agent import RandomBatchAgent
 
 
 EPISODES = 500
@@ -14,7 +14,6 @@ EPISODES = 500
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison
 
-# Compara los resultados de agent1 con los de agent2 y devuelve la mejor
 def compete(agent, apprentice, env):
     """Compares the agent and the apprentice returning the one that performs better"""
 
@@ -71,8 +70,8 @@ def simulate(env, agent, use_apprentice=False):
         done = False
         acc_reward = 0
         while not done:
-            # if i > 1500:
-            #    env.render()
+            if i > 00:
+               env.render()
 
             action = agent.predict_action(state)
 
@@ -122,8 +121,8 @@ if __name__ == '__main__':
     # Uncomment the agent that you want to test
     #results.append(simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n)))
     #results.append(simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n)))
-    #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
-    results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n), True))
+    results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
+    # results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n), True))
 
     # Plot the results
     plt = create_plot(results)

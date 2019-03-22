@@ -14,7 +14,6 @@ EPISODES = 500
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison
 
-# Compara los resultados de agent1 con los de agent2 y devuelve la mejor
 def compete(agent, apprentice, env):
     """Compares the agent and the apprentice returning the one that performs better"""
 
