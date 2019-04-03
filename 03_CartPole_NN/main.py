@@ -9,7 +9,7 @@ from collections import deque
 from drl_agent import SimpleAgent, BatchAgent, RandomBatchAgent
 
 
-EPISODES = 500
+EPISODES = 20
 
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison
@@ -124,6 +124,9 @@ if __name__ == '__main__':
     #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
     results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n), True))
 
+    print(results)
+    print('saving results...')
+    np.savetxt("cartpole_results.txt", results, delimiter='\n', fmt='% 4d')
     # Plot the results
     plt = create_plot(results)
     plt.show()
