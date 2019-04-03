@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout
 from keras.optimizers import Adam
 from keras.initializers import Constant
@@ -104,6 +104,13 @@ class BatchAgent(DQNAgent):
     def supports_replay():
         return True
 
+    def save(self, name):
+        self.model.save(name)
+
+    @staticmethod
+    def load(path):
+       return load_model(path)
+
     def replay(self):
         iter = reversed(self.memory)
         batch_size = min(len(self.memory), MINIBATCH_SIZE)
@@ -137,6 +144,13 @@ class RandomBatchAgent(DQNAgent):
     @staticmethod
     def supports_replay():
         return True
+
+    def save(self, name):
+        self.model.save(name)
+
+    @staticmethod
+    def load(path):
+       return load_model(path)
 
     def replay(self):
         batch_size = min(len(self.memory), MINIBATCH_SIZE)

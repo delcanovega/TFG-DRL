@@ -96,6 +96,8 @@ def simulate(env, agent, use_apprentice=False):
         performance.append(np.mean(scores))
         print("Episode {}/{} score {}".format(i + 1, EPISODES, int(acc_reward)))
 
+    agent.save('modelos/CartPole/modelo.h5')
+
     return performance
 
 
