@@ -107,9 +107,8 @@ class BatchAgent(DQNAgent):
     def save(self, name):
         self.model.save(name)
 
-    @staticmethod
-    def load(path):
-       return load_model(path)
+    def load(self,path):
+       self.model = load_model(path)
 
     def replay(self):
         iter = reversed(self.memory)
@@ -148,9 +147,8 @@ class RandomBatchAgent(DQNAgent):
     def save(self, name):
         self.model.save(name)
 
-    @staticmethod
-    def load(path):
-       return load_model(path)
+    def load(self,path):
+       self.model = load_model(path)
 
     def replay(self):
         batch_size = min(len(self.memory), MINIBATCH_SIZE)

@@ -54,6 +54,7 @@ def test(agent, env):
 def simulate(env, agent, use_apprentice=False):
     scores = deque(maxlen=100)
     performance = []
+    agent.load('modelos/CartPole/modelo.h5')
 
     for i in range(EPISODES):
         state = env.reset()
