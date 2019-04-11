@@ -55,6 +55,7 @@ def test(agent, env):
 def simulate(env, agent):
     scores = deque(maxlen=100)
     performance = []
+    agent.load('modelos/MontainCar/modelo.h5')
 
     #this is realy important because almost all metods(4) has been changed in RandomBatchAgentTwoBrains
     use_apprentice = True if (isinstance(agent, RandomBatchAgentTwoBrains)) else False 
@@ -94,6 +95,8 @@ def simulate(env, agent):
         scores.append(acc_reward)
         performance.append(np.mean(scores))
         print("Episode {}/{} score {}".format(i + 1, EPISODES, int(acc_reward)))
+
+    agent.save('modelos/MontainCar/modelo.h5')
 
     return performance
 
