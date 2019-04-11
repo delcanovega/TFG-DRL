@@ -6,8 +6,9 @@ import copy
 from collections import deque
 
 # Comment this to launch on server
+import drl_agent
 from drl_agent import RandomBatchAgent
-
+from drl_agent import RandomBatchAgentTwoBrains
 
 EPISODES = 500
 
@@ -51,41 +52,39 @@ def test(agent, env):
     return acc_reward
 
 
-def simulate(env, agent, use_apprentice=False):
+def simulate(env, agent):
     scores = deque(maxlen=100)
     performance = []
+
+    #this is realy important because almost all metods(4) has been changed in RandomBatchAgentTwoBrains
+    use_apprentice = True if (isinstance(agent, RandomBatchAgentTwoBrains)) else False 
 
     for i in range(EPISODES):
         state = env.reset()
         state = np.reshape(state, [1, env.observation_space.shape[0]])
 
-        if use_apprentice and i % COMP == 0:
-            # Do not compete on the first episode
-            if i > COMP:
-                agent = compete(agent, apprentice_agent, env)
-                state = env.reset()
-                state = np.reshape(state, [1, env.observation_space.shape[0]])
-            apprentice_agent = copy.copy(agent)
-
+        # Do not compete on the first episode
+        if use_apprentice and i % COMP == 0 and i >= COMP:
+            agent.compete(env)
+            
         done = False
         acc_reward = 0
         while not done:
-            if i > 00:
-               env.render()
+            #if i > 00:
+            #   env.render()
 
             action = agent.predict_action(state)
 
             next_state, reward, done, _ = env.step(action)
             next_state = np.reshape(next_state, [1, env.observation_space.shape[0]])
-
-            if use_apprentice and i > COMP:
-                apprentice_agent.update_model(state, action, reward, next_state, done)
-                if apprentice_agent.supports_replay():
-                    apprentice_agent.replay()
-            else:
-                agent.update_model(state, action, reward, next_state, done)
-                if agent.supports_replay():
-                    agent.replay()
+            
+            #now Mentor and Apprentice share memory
+            agent.update_model(state, action, reward, next_state, done)
+           
+            if use_apprentice and i < COMP:
+                agent.replay_Mentor()
+            elif agent.supports_replay():
+                agent.replay()
 
             state = next_state
             acc_reward += reward
@@ -121,8 +120,10 @@ if __name__ == '__main__':
     # Uncomment the agent that you want to test
     #results.append(simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n)))
     #results.append(simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n)))
-    results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
-    # results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n), True))
+    #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
+    #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n), True))
+    results.append(simulate(env, RandomBatchAgentTwoBrains(env.observation_space.shape[0], env.action_space.n)))
+
 
     # Plot the results
     plt = create_plot(results)

@@ -1,0 +1,34 @@
+ 
+
+ 500 episodios
+
+ La funcion llamada ourReward recibe un estado y una 
+ penalizacion y devuelve una recompensa nueva para 
+ sustituir la que devuelve el entorno
+
+ La nueva recompensa se basa en la 
+ VELOCIDAD ABSOLUTA
+
+ Además se dara una bonificacion de +0.5
+ si la POSICION ABSOLUTA y se ecuentra
+ por encima de 0(el origen es -0.5 mas o menos por, 
+ que este representaria la mitad de la montaña derecha).
+
+ por ultimo se aplica ua penalizacion del 0.005% 
+ por cada episodio que el agente haya realizado 
+ a la recompensa
+ 
+RESULTADO: FigureMain2.png
+
+ NOTA: parece que funciona mejor pero lo que realmente 
+ pasa (LANZAR EJECUCION)
+
+ NOTA: dado que estas anotaciones se estan haciendose
+  tras la finalizacion de todos los mains la modificacion
+  de cambiar la penalizacion a 0.999 no esta implementada,
+   por lo que de base cambiare esto en todos los mains
+
+RESULTADO_PENALIZACION_RAZONABLE:
+
+
+

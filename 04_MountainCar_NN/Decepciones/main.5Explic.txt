@@ -1,0 +1,10 @@
+
+500 episodios
+
+La reward será la que genera normalmente 
+el entorno (-1), pero en caso de superar su máximo 
+cambia dicha recompensa por 1
+
+
+INVALIDO: dado que tiene en cuenta factores 
+agenos al estado (guarda un Maxh)

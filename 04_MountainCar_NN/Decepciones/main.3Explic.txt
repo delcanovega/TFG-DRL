@@ -1,0 +1,102 @@
+
+ 
+ La funcion llamada ourReward recibe un estado, una 
+ penalizacion y un BOOLEANO, devuelve una recompensa nueva para 
+ sustituir la que devuelve el entorno
+=========================================
+    1º
+=========================================
+500 episodios
+
+La nueva recompensa se basa en la 
+ VELOCIDAD ABSOLUTA 
+
+Bonificación +10 cuando supera su maxima 
+distancia, respecto al centro, alcanzada hasta 
+el momento (para ello tendremos que poner el centro a 0)
+
+
+RESULTADOS: Main_3SinPenalizacionAlcanzadoIndistin.png
+
+NOTA: dado que es dificil distinguir los episocios 
+ que completan el objetivo de los que no hice una 
+ versión alternativa de este código explicada a continuación
+
+=========================================
+    2º
+=========================================
+
+500 episodios
+
+La nueva recompensa se basa en la 
+ VELOCIDAD ABSOLUTA 
+
+Bonificación +10 cuando supera su maxima 
+distancia, respecto al centro, alcanzada hasta 
+el momento (para ello tendremos que poner el centro a 0)
+
+Según la documentación el entorno devuelve 
+recompensa 0 cuando alcanza el objetivo (0.5), 
+por lo que cada vez que el entorno devuelva 
+recompensa 0 devolveremos recompensa 
+2000 - el numero de steps (pasos que haya tardado en 
+alcanzar el objetivo) como mucho devolveria 1800
+
+Probamos a activar y desactivar la penalización
+
+RESULTADOS: Main3SinPenalAlcanzaDisting.png
+            Main3ConPenalizAlcanzarDis.png
+
+COMETO EL GRABE ERROR DE SEGUIR PROGRAMANDO 
+SOBRE EL MISMO MAIN
+
+=========================================
+    3º
+=========================================
+
+500 episodios
+
+ La nueva recompensa se basa en la 
+ VELOCIDAD ABSOLUTA * 10
+ dado que el valor absoluto de la VELOCIDAD
+  NO suele alcanzar VALORES MUY ALTOS, se ve 
+ FACILMENTE ECLIPSADO POR el valor de 
+ la BONIFICACIÓN 
+
+La bonificacion de +10, como en las anteriores,
+cuando supera su maxima distancia, respecto al 
+centro, alcanzada hasta el momento (para ello
+ tendremos que poner el centro a 0)
+
+Penalización alta de 0.005% por paso
+
+RESULTADO: main3_rewardX10.png
+
+
+Exactamente el mismo codigo pero triplicando 
+los episodios y usando como recompensa la 
+VELOCIDAD ABSOLUTA * 100 dado que multiplicar por
+10 seguia siento insuficiente para la recompensa 
+del bonus
+
+1500 episocios
+
+RESULTADO: 1500itMain3RewardX100.png
+
+DESESPERACIÓN: Parece que con estas modificaciones el modelo
+ se estanca en un penoso y desesperado intento de 
+ ir hacia la derecha o en un balanceo vago de un 
+ lado a otro pero sin llegar a coger velocidad 
+ suficiente para alcanzar la meta
+
+AYUDA: 1080 es el valor mas alto que consigue sin llegar a la solucion...
+        correccion hay casos en los que alcanza el objetivo pero obtiene 
+        una puntuacion inferior a 1080
+
+Depende mucho de la aleatoredad 
+ 
+RESULTADO: main3_finalSolucionGood.png
+
+Es curioso como muchas soluciones tienen menos puntuacion 
+que otras partidas que no terminan ganando. Tendremos que mirar 
+porque y poner una puntuacion exageradamente alta cuando gane
