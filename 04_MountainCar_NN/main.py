@@ -15,43 +15,6 @@ EPISODES = 500
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison
 
-def compete(agent, apprentice, env):
-    """Compares the agent and the apprentice returning the one that performs better"""
-
-    total_reward_agent = 0
-    total_reward_apprentice = 0
-    for i in range(BESTOF):
-        reward_agent = test(agent, env)
-        reward_apprentice = test(apprentice, env)
-
-        # print("Round {}: agent {} - apprentice {}".format(i + 1, reward_agent, reward_apprentice))
-        total_reward_agent += reward_agent
-        total_reward_apprentice += reward_apprentice
-
-    print("Final results: agent {} - apprentice {}".format(total_reward_agent, total_reward_apprentice))
-    return apprentice if total_reward_agent < total_reward_apprentice else agent 
-
-
-def test(agent, env):
-    """Simulates an episode with no learning"""
-
-    state = env.reset()
-    state = np.reshape(state, [1, env.observation_space.shape[0]]) 
-
-    done = False
-    acc_reward = 0
-    while not done:
-        action = agent.predict_action(state)
-
-        next_state, reward, done, _ = env.step(action)
-        next_state = np.reshape(next_state, [1, env.observation_space.shape[0]])
-
-        state = next_state
-        acc_reward += reward
-        
-    return acc_reward
-
-
 def simulate(env, agent):
     scores = deque(maxlen=100)
     performance = []

@@ -203,9 +203,9 @@ class RandomBatchAgentTwoBrains(DQNAgent):
         print("Final results: mentor {} - apprentice {}".format(total_reward_mentor, total_reward_apprentice))
         
         if total_reward_mentor > total_reward_apprentice :
-            self.apprentice_model = self.model
+            self.apprentice_model.set_weights(self.model.get_weights())
         else : 
-            self.model = self.apprentice_model
+            self.model.set_weights(self.apprentice_model.get_weights())
             #self.model.from_config(self.apprentice_model.get_config())
 
 
