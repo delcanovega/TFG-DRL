@@ -5,6 +5,7 @@ from keras.models import Sequential
 from keras.models import load_model
 from keras.layers import Dense, Dropout
 from keras.optimizers import Adam
+from keras.optimizers import Adadelta
 from keras.initializers import Constant
 
 from collections import deque
@@ -53,7 +54,9 @@ class DQNAgent:
         # Output Layer with # of actions: 2 nodes (left, right)
         model.add(Dense(self.action_space, activation='linear'))
 
-        model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
+        #model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
+        #probamos con este otro metodo
+        model.compile(loss='mse', optimizer=Adadelta(lr=1.0, rho=self.discount_factor, epsilon=None, decay=0.0))
 
         return model
 

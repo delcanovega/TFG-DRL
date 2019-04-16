@@ -1,0 +1,42 @@
+He modificado la funcion de ourreward para no dar el bonus 
+dado que no puede haber ninguna recompensa ajena al estado, es decir:
+podemos darle una bonificacion por alcanzar 0.1, 0.2, 0.3, ... 
+Pero no podemos darle una bonificacion SOLO al alcanzar la 
+posición 0.1, 0.2, 0.3... por primera vez, dado que de esa forma la red
+aprende (la primera vez que pasa) que en la posicion 0.1 tiene +20 de reward
+y la siguiente vez que pasa recibe +1, la red puede "confundirse" dado 
+que se entrena para predecir una recompensa para luego resultar que es otra 
+lo que supone un derroche de recursos para RECORREGIR ese valor 
+ una y otra vez
+Explicacion mas comprensible:
+Cada vez que se cambia de estado, la red PREDICE las recompensas de 
+todos los posibles movimientos(DER, IZQ, NEUTRO) de entre estas 
+elige la mayor (si no decide actuar random (para fomentar la 
+exploracion de estados nuevos)), guarda su accion en memoria a 
+corto plazo y repite, así hasta que alcanza un estado final( ganar o tiempo excedido)
+En ese momento se recibe la recompensa final de la partida. Con esta 
+se va calculando, de final a inicio, las recompensas intemedias de cada 
+acción tomada para los estados transcurridos durante la partida:
+   recompensa estado i = f(recompensa estado i+1)
+la agrupacion de estado, accion, y recompensa (S, A, R) lo llamaremos recuerdo,
+de tal forma que durante la partida se van generando "recuerdos incompletos"(S, A, _),
+cuando se termina se actualizan las recompensas R, produciendo "recuerdo completo"(S, A, R),
+esta agrupación de recuerdos será nuestra memoria a corto plazo (con todos lo recuerdos de esa partida)
+estos datos se meten en una "piscina de recuerdos" una memoria 
+más a largo plazo en la que se encuentran recuerdos de varias partidas
+Y en el momento de aprender se cogen recuerdos ALEATORIAMENTE de la memoria a largo plazo
+y con ellos se entrena la red neuronal
+¿QUE PASA SI EN LA MISMA MEMORIA EXISTE r1(s1, a1, 20) r2(s1, a1, 1)? Siendo r1 la pimera pasada y r2 la segunda
+La red fallara más de lo que falla normalmete 
+
+
+Para la 3.2 también hemos cambiado el optimizer de Adam a Adadelta para intentar reducir el overfeeding
+
+
+RESULTADO: 	NUEVO RECORD 150 ITERACIONES YA LO CONSIGUE!!! Quedan 1350 partidas... a ver si no se overfittea XD
+	   	A partid de la 730 ha no alcanzar la recompensa final quedandose a muy poco de alcanzarla... como si 
+	   	quiera alargar la partida a costa de no ganar la recompensa ¿acaso acaba de surgir una redneuronal que 
+		busca entretenerse en vez de ganar? Parece haber remitido este extraño comportamiento en la 760
+		main3.2AdadeltaSinBonus.txt
+		main3.2AdadeltaSinBonus.png
+
