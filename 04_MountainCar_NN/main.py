@@ -7,10 +7,10 @@ from collections import deque
 
 # Comment this to launch on server
 import drl_agent
-from drl_agent import RandomBatchAgent
+from drl_agent_1 import RandomBatchAgent
 from drl_agent import RandomBatchAgentTwoBrains
 
-EPISODES = 500
+EPISODES = 100
 
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison
@@ -34,8 +34,8 @@ def simulate(env, agent):
         done = False
         acc_reward = 0
         while not done:
-            #if i > 00:
-            #   env.render()
+            if i > 00:
+               env.render()
 
             action = agent.predict_action(state)
 
@@ -86,9 +86,9 @@ if __name__ == '__main__':
     # Uncomment the agent that you want to test
     #results.append(simulate(env, SimpleAgent(env.observation_space.shape[0], env.action_space.n)))
     #results.append(simulate(env, BatchAgent(env.observation_space.shape[0], env.action_space.n)))
-    #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
+    results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n)))
     #results.append(simulate(env, RandomBatchAgent(env.observation_space.shape[0], env.action_space.n), True))
-    results.append(simulate(env, RandomBatchAgentTwoBrains(env.observation_space.shape[0], env.action_space.n)))
+    #results.append(simulate(env, RandomBatchAgentTwoBrains(env.observation_space.shape[0], env.action_space.n)))
 
 
     # Plot the results

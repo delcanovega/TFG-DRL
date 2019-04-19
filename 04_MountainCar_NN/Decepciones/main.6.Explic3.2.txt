@@ -40,3 +40,10 @@ RESULTADO: 	NUEVO RECORD 150 ITERACIONES YA LO CONSIGUE!!! Quedan 1350 partidas.
 		main3.2AdadeltaSinBonus.txt
 		main3.2AdadeltaSinBonus.png
 
+BIBLIOGRAFIA:
+	https://www.dlology.com/blog/quick-notes-on-how-to-choose-optimizer-in-keras/
+	https://keras.io/optimizers/
+
+COMPARACIÓN:
+		main.3.2FinalSinBonusAdam200.txt
+		
