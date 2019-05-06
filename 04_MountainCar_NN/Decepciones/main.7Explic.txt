@@ -1,0 +1,15 @@
+La funcion llamada ourReward recibe un estado y devuelve una recompensa nueva para 
+ sustituir la que devuelve el entorno
+
+En este caso la recompensa nueva es la VELOCIDAD ABSOLUTA * 100
+
+Usamos tres modelos:
+ - MENTOR: El que toma decisiones segun el entorno
+ - APRENDIZ: aprende de los errores del mentor
+ - BEST: El mejor modelo encontrado hasta la fecha
+ Cada 10 episodios(partidas), se ponen a competir ejecutando 100 partidas de prueba, el que mejor resultado consiga gana,
+ si el MENTOR es mejor que el APRENDIZ, el aprendiz copia los pesos del MENTOR, y en caso contrario el MENTOR copia los pesos del APRENDIZ.
+ Por otro lado de los tres el mayor sustituira a BEST, en caso de ser el mismo no hara nada.
+ Para representar esto hemos creado un código compuesto por dos digitos (a,b)
+ "a" indica quien ha ganado entre MENTOR y APRENDIZ, respectivamente 0 y 1
+ "b" indica si se ha cambiado BEST (0 ha cambiado a MENTOR/1 ha cambiado a APRENDIZ/2 no ha cambiado)
