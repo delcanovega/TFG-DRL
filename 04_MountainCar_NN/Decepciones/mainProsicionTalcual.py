@@ -6,10 +6,10 @@ import copy
 from collections import deque
 
 # Comment this to launch on server
-from drl_agent_3 import RandomBatchAgentTwoBrains
+from drl_agent_5 import RandomBatchAgentTwoBrains
 
 
-EPISODES = 1500
+EPISODES = 1000
 
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison

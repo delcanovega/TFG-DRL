@@ -108,7 +108,6 @@ def create_plot(results):
     ax.set(xlabel='Episodio', ylabel='Media de todos los episodios')
     ax.grid()
 
-    ax.plot([195 for i in range(len(results[0]))], color='green')
     for i in range(len(results)):
         # results[i] = list(map(lambda x: 200 if x > 200 else x, results[i]))  # Limit the performance to 200
         ax.plot(results[i], color=colors[i])

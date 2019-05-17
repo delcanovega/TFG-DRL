@@ -30,8 +30,10 @@ BESTOF = 100 # Number of simulations of the comparison
 
 class DQNAgent:
     """Base class for the different agent implementations.
+
     Note:
         Don't instantiate this class directly
+
     """
     def __init__(self, state_space, action_space):
         self.state_space = state_space
@@ -53,9 +55,9 @@ class DQNAgent:
         # Output Layer with # of actions: 2 nodes (left, right)
         model.add(Dense(self.action_space, activation='linear'))
 
-        #model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
+        model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         #probamos con este otro metodo
-        model.compile(loss='mse', optimizer=Adadelta(lr=1.0, rho=self.discount_factor, epsilon=None, decay=0.0))
+        #model.compile(loss='mse', optimizer=Adadelta(lr=1.0, rho=self.discount_factor, epsilon=None, decay=0.0))
 
         return model
 
@@ -171,11 +173,7 @@ class RandomBatchAgentTwoBrains(DQNAgent):
         done = False
         acc_reward = 0
         while not done:
-            if(model == 0):
-                action_value = self.model.predict(state)
-            else: 
-                action_value = self.apprentice_model.predict(state)
-            
+            action_value = self.model.predict(state)
             action = np.argmax(action_value) 
 
             next_state, reward, done, _ = env.step(action)
@@ -197,8 +195,8 @@ class RandomBatchAgentTwoBrains(DQNAgent):
         total_reward_mentor = 0
         total_reward_apprentice = 0
         for _ in range(BESTOF):
-            reward_mentor = self.test(env, 0)
-            reward_apprentice = self.test(env, 1)
+            reward_mentor = self.test(env, self.model)
+            reward_apprentice = self.test(env, self.apprentice_model)
 
             # print("Round {}: mentor {} - apprentice {}".format(i + 1, reward_mentor, reward_apprentice))
             total_reward_mentor += reward_mentor
@@ -223,7 +221,6 @@ class RandomBatchAgentTwoBrainsBestSave(DQNAgent):
         DQNAgent.__init__(self, state_space, action_space)
         self.apprentice_model = self.build_model()
         self.best_model = self.model
-        #self.best_model = self.build_model()
         self.memory = deque(maxlen=MEMORY_SIZE)
         self.firstTime = True
         self.secondTime = True
@@ -281,12 +278,7 @@ class RandomBatchAgentTwoBrainsBestSave(DQNAgent):
         done = False
         acc_reward = 0
         while not done:
-            if model == 0:
-                action_value = self.model.predict(state)
-            elif model == 1:
-                action_value = self.apprentice_model.predict(state)
-            elif model == 2:
-                action_value = self.best_model.predict(state)
+            action_value = self.model.predict(state)
             action = np.argmax(action_value) 
 
             next_state, reward, done, _ = env.step(action)
@@ -311,8 +303,8 @@ class RandomBatchAgentTwoBrainsBestSave(DQNAgent):
         total_reward_mentor = 0
         total_reward_apprentice = 0
         for _ in range(BESTOF):
-            reward_mentor = self.test(env, 0)
-            reward_apprentice = self.test(env, 1)
+            reward_mentor = self.test(env, self.model)
+            reward_apprentice = self.test(env, self.apprentice_model)
 
             # print("Round {}: mentor {} - apprentice {}".format(i + 1, reward_mentor, reward_apprentice))
             total_reward_mentor += reward_mentor
@@ -344,9 +336,9 @@ class RandomBatchAgentTwoBrainsBestSave(DQNAgent):
         total_reward_apprentice = 0
         total_reward_max = 0
         for _ in range(BESTOF):
-            reward_mentor = self.test(env, 0)
-            reward_apprentice = self.test(env, 1)
-            reward_max = self.test(env, 2)
+            reward_mentor = self.test(env, self.model)
+            reward_apprentice = self.test(env, self.apprentice_model)
+            reward_max = self.test(env, self.best_model)
 
             # print("Round {}: mentor {} - apprentice {}".format(i + 1, reward_mentor, reward_apprentice))
             total_reward_mentor += reward_mentor
@@ -375,28 +367,6 @@ class RandomBatchAgentTwoBrainsBestSave(DQNAgent):
                 self.model.set_weights(self.best_model.get_weights())
          
         return a, b
-		
-    def lastFight(self, env):
 
-        total_reward_mentor = 0
-        total_reward_apprentice = 0
-        total_reward_max = 0
-        acc_mentor = []
-        acc_apprentice = []
-        acc_best = []
-        for _ in range(BESTOF):
-            reward_mentor = self.test(env, 0)
-            reward_apprentice = self.test(env, 1)
-            reward_max = self.test(env, 2)
 
-            total_reward_mentor += reward_mentor
-            total_reward_apprentice += reward_apprentice
-            total_reward_max += reward_max
-            acc_mentor.append(reward_mentor)
-            acc_apprentice.append(reward_apprentice)
-            acc_best.append(reward_max)
 
-        print("Final results: mentor {} - apprentice {} - best player {}".format(total_reward_mentor, total_reward_apprentice, total_reward_max))
-        
-         
-        return acc_mentor, acc_apprentice, acc_best

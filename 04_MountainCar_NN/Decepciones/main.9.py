@@ -9,7 +9,7 @@ from collections import deque
 from drl_agent_4 import RandomBatchAgentTwoBrainsBestSave
 
 
-EPISODES = 1500
+EPISODES = 500
 
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison
@@ -25,7 +25,7 @@ def represent(arr, mt):
 t = np.arange(EPISODES)
 
 def ourReward(state):
-    reward = abs(state[0][1]) * 100
+    reward = abs(state[0][0]+0.5) * 10
     return reward
 
 

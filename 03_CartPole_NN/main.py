@@ -9,7 +9,7 @@ from collections import deque
 from drl_agent import SimpleAgent, BatchAgent, RandomBatchAgent
 
 
-EPISODES = 20
+EPISODES = 500
 
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison

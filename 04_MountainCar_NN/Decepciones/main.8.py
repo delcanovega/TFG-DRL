@@ -9,7 +9,7 @@ from collections import deque
 from drl_agent_4 import RandomBatchAgentTwoBrainsBestSave
 
 
-EPISODES = 1500
+EPISODES = 200
 
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison
@@ -32,7 +32,9 @@ def ourReward(state):
 def simulate(env, agent, use_apprentice=False):
     oldScores = deque(maxlen=100) 
     performance, scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, competes, bestchangedPos, bestchangedVal = [[] for _ in range(11)]
-    
+    polPos = deque(maxlen=500) 
+    polVel = deque(maxlen=500) 
+    polAct = deque(maxlen=500) 
     #agent.load('modelos/MontainCar/modelo.h5')
     
     use_apprentice = True if (isinstance(agent, RandomBatchAgentTwoBrainsBestSave)) else False 
@@ -115,7 +117,8 @@ def simulate(env, agent, use_apprentice=False):
         velAcc.append(acc_vel)
         posAcc.append(acc_pos)
         performance.append(np.mean(oldScores))
-        print("Episode {}/{} score {}".format(i + 1, EPISODES, int(acc_reward)))
+        print("Episode {}/{} score {}/Enviroment score {}".format(i + 1, EPISODES, int(acc_reward), int(acc_reward_environment)))
+
 
     return scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal
 
@@ -134,20 +137,20 @@ def create_plot(results):
 
     return plt
 
-def create_mega_plot(scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal):
+def create_mega_plot(scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal,):
     colors = ['blue', 'red', 'purple', 'green', 'pink']
 
     
-    np.savetxt('Scores.txt',scores)
-    np.savetxt('Enviroment_Scores.txt', real_scores)
-    np.savetxt('MaxVel.txt',maxVel)
-    np.savetxt('MaxPos.txt',maxPos)
-    np.savetxt('VelAcc.txt',velAcc)
-    np.savetxt('PosAcc.txt',posAcc)
-    np.savetxt('Performance.txt',performance)
-    np.savetxt('Competes.txt',competes)
-    np.savetxt('Best_changed_Pos.txt',bestchangedPos)
-    np.savetxt('Best_changed_Val.txt',bestchangedVal)
+    #np.savetxt('Scores.txt',scores)
+    #np.savetxt('Enviroment_Scores.txt', real_scores)
+    #np.savetxt('MaxVel.txt',maxVel)
+    #np.savetxt('MaxPos.txt',maxPos)
+    #np.savetxt('VelAcc.txt',velAcc)
+    #np.savetxt('PosAcc.txt',posAcc)
+    #np.savetxt('Performance.txt',performance)
+    #np.savetxt('Competes.txt',competes)
+    #np.savetxt('Best_changed_Pos.txt',bestchangedPos)
+    #np.savetxt('Best_changed_Val.txt',bestchangedVal)
     
 
     ax = plt.subplot(311)

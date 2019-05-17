@@ -6,10 +6,10 @@ import copy
 from collections import deque
 
 # Comment this to launch on server
-from drl_agent_4 import RandomBatchAgentTwoBrainsBestSave
+from drl_agent_6 import RandomBatchAgentTwoBrainsBestSave
 
 
-EPISODES = 1500
+EPISODES = 500
 
 COMP = 10    # Every COMP episodes the agent and apprentice are compared
 BESTOF = 20  # Number of simulations of the comparison
@@ -116,8 +116,10 @@ def simulate(env, agent, use_apprentice=False):
         posAcc.append(acc_pos)
         performance.append(np.mean(oldScores))
         print("Episode {}/{} score {}".format(i + 1, EPISODES, int(acc_reward)))
+    
+    acc_mentor, acc_apprentice, acc_best = agent.lastFight(env)
 
-    return scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal
+    return scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal, acc_mentor, acc_apprentice, acc_best
 
 
 def create_plot(results):
@@ -134,20 +136,20 @@ def create_plot(results):
 
     return plt
 
-def create_mega_plot(scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal):
+def create_mega_plot(scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal, acc_mentor, acc_apprentice, acc_best):
     colors = ['blue', 'red', 'purple', 'green', 'pink']
 
     
-    np.savetxt('Scores.txt',scores)
-    np.savetxt('Enviroment_Scores.txt', real_scores)
-    np.savetxt('MaxVel.txt',maxVel)
-    np.savetxt('MaxPos.txt',maxPos)
-    np.savetxt('VelAcc.txt',velAcc)
-    np.savetxt('PosAcc.txt',posAcc)
-    np.savetxt('Performance.txt',performance)
-    np.savetxt('Competes.txt',competes)
-    np.savetxt('Best_changed_Pos.txt',bestchangedPos)
-    np.savetxt('Best_changed_Val.txt',bestchangedVal)
+    #np.savetxt('Scores.txt',scores)
+    #np.savetxt('Enviroment_Scores.txt', real_scores)
+    #np.savetxt('MaxVel.txt',maxVel)
+    #np.savetxt('MaxPos.txt',maxPos)
+    #np.savetxt('VelAcc.txt',velAcc)
+    #np.savetxt('PosAcc.txt',posAcc)
+    #np.savetxt('Performance.txt',performance)
+    #np.savetxt('Competes.txt',competes)
+    #np.savetxt('Best_changed_Pos.txt',bestchangedPos)
+    #np.savetxt('Best_changed_Val.txt',bestchangedVal)
     
 
     ax = plt.subplot(311)
@@ -179,8 +181,11 @@ def create_mega_plot(scores, real_scores, maxVel, maxPos, stepsList, velAcc, pos
     a4x.legend()
 
     a5x = plt.subplot(326)
-    a5x.set(xlabel='Episodes')
-    a5x.plot(range(len(scores)),posAcc, color=colors[3], label = 'position accumulated')
+    a5x.set(xlabel='LAST FIGHT')
+    a5x.plot(range(len(acc_mentor)),acc_mentor, color=colors[0], label = 'FINAL MENTOR')
+    a5x.plot(range(len(acc_mentor)),acc_apprentice, color=colors[1], label = 'FINAL APRENDIZ')
+    a5x.plot(range(len(acc_mentor)),acc_best, color=colors[3], label = 'FINAL MEJOR')
+    a5x.legend()
     
     #ax.plot([195 for i in range(len(results[0]))], color='green')
     #for i in range(len(scores)):
@@ -255,12 +260,12 @@ def create_mega_plot_fromfile():
 if __name__ == '__main__':
     env = gym.make('MountainCar-v0')
 
-    scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal = simulate(env,
+    scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal, acc_mentor, acc_apprentice, acc_best = simulate(env,
      RandomBatchAgentTwoBrainsBestSave(env.observation_space.shape[0], env.action_space.n))
 
 
 
     # Plot the results
     #plt = create_plot(results)
-    plt = create_mega_plot(scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal)
+    plt = create_mega_plot(scores, real_scores, maxVel, maxPos, stepsList, velAcc, posAcc, performance, competes,  bestchangedPos, bestchangedVal, acc_mentor, acc_apprentice, acc_best)
     plt.show()
