@@ -1,3 +1,0 @@
-En la grafica se puede ver como sube y baja mucho pero se debe a que la recompensa entre una ejecucion que llega a la 
-meta y una que no distan mucho, eso hace que sea confuso y dificil ver en que eisodios llega cerca, 
-por eso tenemos la grafica de la posicion maxima esta nos muestra lo cerca que se ha quedado de la meta
