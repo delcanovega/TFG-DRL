@@ -1,4 +1,4 @@
-# Aprendizaje profundo por refuerzo aplicado a juegos sencillos
+# Aprendizaje por refuerzo profundo aplicado a juegos sencillos
 
 Trabajo Fin de Grado en Ingeniería Informática, Universidad Complutense de Madrid.
 
